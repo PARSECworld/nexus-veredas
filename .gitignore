@@ -1,0 +1,10 @@
+*.log
+*.pot
+*.pyc
+veredas/__pycache__/
+veredas/migrations/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+veredas/static/
+veredas/images/

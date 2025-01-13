@@ -1,0 +1,20 @@
+<a href="{% url 'list_collections' %}">
+    Ver todas as coleções de imagens
+</a>
+<ul>
+    {% for image in images %}
+        <li>
+            <a><img src="{{ image.url }}" width="100"></a>
+            <span>{{ image.outline }} / 
+                <a href="{% url 'collectionDetail' image.nexusArea image.date %}">
+                    area {{ image.nexusArea }} – {{ image.date }}</a> /
+                {% if image.coordinates %}
+                    Lat.: [{{ image.coordinates.yMin }}&deg;, {{ image.coordinates.yMax }}&deg;];
+                    Lon.: [{{ image.coordinates.xMin }}&deg;, {{ image.coordinates.xMax }}&deg;]
+                {% else %}
+                    Coordenadas não disponíveis.
+                {% endif %}
+            </span>
+        </li>
+    {% endfor %}
+</ul>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<head>
+	<meta charset='UTF-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+	<style>
+		.input-container {
+			position: relative;
+			display: inline-block;
+		}
+		#dateInput {
+			padding-right: 30px; /* Espaço para a seta */
+			width: 11ch;
+		}
+		.options {
+			display: none;
+			position: absolute;
+			top: 100%;
+			left: 0;
+			right: 0;
+			border: 1px solid #ccc;
+			background: white;
+			max-height: 150px; /* Altura máxima para 5 opções */
+			overflow-y: auto; /* Permite rolagem */
+			z-index: 1000;
+		}
+		.options div {
+			padding: 10px;
+			cursor: pointer;
+		}
+		.options div:hover {
+			background: #f0f0f0;
+		}
+		.arrow {
+			position: absolute;
+			right: 5px;
+			top: 50%;
+			transform: translateY(-50%);
+			cursor: pointer;
+		}
+		.no-options {
+			padding: 10px;
+			color: gray;
+			pointer-events: none; /* Não permite clicar */
+		}
+	</style>
+</head>
+<body>
+	<div class='input-container'>
+		<input type='text' id='dateInput' placeholder='aaaa-mm-dd' autocomplete='off'>
+		<span class='arrow' id='dateArrow'>&#9662;</span>
+		<div class='options' id='dateOptions'>
+			<div class='no-options' id='noDateOptions'>Data inválida</div>
+			{% for date in dates %}
+			<div>{{ date }}</div>
+			{% endfor %}
+		</div>
+	</div>
+
+	<script>
+		const dateInput = document.getElementById('dateInput');
+		const dateOptionsList = document.getElementById('dateOptions');
+		const dateArrow = document.getElementById('dateArrow');
+		const dateOptions = Array.from(dateOptionsList.children)
+			.filter(option => option.id !== 'noDateOptions');
+		const dates = dateOptions.map(div => div.textContent.trim());
+		const noDateOptions = document.getElementById('noDateOptions');
+
+		function sortDateOptions() { // Filtra opções com base no input
+			const input = dateInput.value.replace(/__/g, '00');
+			dateOptions.forEach(option => {
+				const [oa, o1, o2] = option.textContent.match(/\d+/g);
+				const ia = input.slice(0, 4) ?? '0000';
+				const i1 = input.slice(5, 7) ?? '00';
+				const i2 = input.slice(8, 10) ?? '00';
+				if((oa.startsWith(ia) || ia=='0000') &&
+				(o1.includes(i1) && i1!='0' || o1.startsWith(i1) && i1=='0' || i1=='00') &&
+				(o2.includes(i2) && i2!='0' || i2=='0' && o2.startsWith(i2) || i2=='00') &&
+				!(ia=='0000' && i1=='00' && i2=='00'))
+					option.style.display = 'block';
+				else option.style.display = 'none';
+			});
+		}
+
+		dateArrow.onclick = function() { // Mostrar/ocultar opções ao clicar na seta
+			sortDateOptions();
+			if (dateOptions.some(option => option.style.display === 'block'))
+				noDateOptions.style.display = 'none';
+			else noDateOptions.style.display = 'block';
+			dateOptionsList.style.display = dateOptionsList.style.display === 'block' ? 'none' : 'block';
+		}
+
+		dateInput.addEventListener('input', function() { // Mostrar/ocultar opções ao digitar
+			noDateOptions.style.display = 'none';
+			let v = this.value;
+			if (v.length >= 4 && v[4] !== '-') v = v.slice(0, 4) + '-' + v.slice(4);
+			if (v.length >= 7 && v[7] !== '-') v = v.slice(0, 7) + '-' + v.slice(7);
+			if (v.length > 10) v = v.slice(0, 10);
+			this.value = v;
+			sortDateOptions();
+			dateOptionsList.style.display = dateOptions.some(option => // Mostrar/ocultar lista
+				option.style.display === 'block') && dateInput.value !== '' ? 'block' : 'none';
+		});
+
+		function selectDate(value) { // Selecionar opção
+			dateInput.value = value;
+			dateOptionsList.style.display = 'none'; // Ocultar opções após seleção
+		}
+
+		function handleDateClick(event) { // Ocultar opções ao clicar fora (window.onclick = ...)
+			if (!event.target.matches('.arrow') && !event.target.matches('#dateInput'))
+				dateOptionsList.style.display = 'none';
+		}
+
+		dateOptions.forEach(option => { // Adicionar evento de clique nas opções
+			option.onclick = function() {
+				selectDate(option.textContent);
+			};
+ 		});
+
+		dateInput.addEventListener('keydown', (event) => {
+			const input = dateInput.value.replace(/__/g, '00').replace(/\D/g, '');
+
+			if (event.key === 'Backspace') {
+				const cursorPosition = dateInput.selectionStart;
+				if (cursorPosition > 0 && dateInput.value.slice(cursorPosition-5, cursorPosition) === '____-') {
+					event.preventDefault();
+					dateInput.value = dateInput.value.slice(0, cursorPosition-5) + dateInput.value.slice(cursorPosition);
+					dateInput.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+				}
+				if (cursorPosition > 0 && dateInput.value.slice(cursorPosition-3, cursorPosition) === '__-') {
+					event.preventDefault();
+					dateInput.value = dateInput.value.slice(0, cursorPosition-3) + dateInput.value.slice(cursorPosition);
+					dateInput.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+				}
+				if (cursorPosition > 0 && dateInput.value.slice(cursorPosition-2, cursorPosition) === '__') {
+					event.preventDefault();
+					dateInput.value = dateInput.value.slice(0, cursorPosition-2) + dateInput.value.slice(cursorPosition);
+					dateInput.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+				}
+				// Remove o caractere antes da posição do cursor, se for hífen
+				if (cursorPosition > 0 && dateInput.value[cursorPosition - 1] === '-') {
+					event.preventDefault();
+					dateInput.value = dateInput.value.slice(0, cursorPosition-2) + dateInput.value.slice(cursorPosition);
+					dateInput.setSelectionRange(cursorPosition - 1, cursorPosition - 1); // Ajusta o cursor
+				}
+			}
+
+			if (event.key === 'ArrowRight') {
+				// Se não houver nenhum caractere, move o cursor para o campo de mês
+				if (dateInput.value.length === 0) {
+					dateInput.value = '____-';
+					event.preventDefault();
+					dateInput.setSelectionRange(5, 5);
+				} else if (dateInput.value.length === 5 && dateInput.value[4] === '-') {
+					dateInput.value = dateInput.value + '__-';
+					event.preventDefault();
+					dateInput.setSelectionRange(8, 8);
+				} // Completa mês com 0 à esquerda
+				else if (dateInput.value.length === 6 && dateInput.value[4] === '-') {
+					const m = '0' + dateInput.value.slice(-1);
+					dateInput.value = dateInput.value.slice(0, 5) + m + '-';
+					event.preventDefault();
+					dateInput.setSelectionRange(8, 8);
+				} else if (dateInput.value.length === 8 && dateInput.value[4] === '-' &&
+						dateInput.value[7] === '-') {
+					dateInput.value = dateInput.value + '__';
+					event.preventDefault();
+					dateInput.setSelectionRange(10, 10);
+				} // Completa dia com 0 à esquerda
+				else if (dateInput.value.length === 9 && dateInput.value[4] === '-' &&
+						dateInput.value[7] === '-' && /^[1-9]$/.test(dateInput.value.slice(-1))) {
+					const d = '0' + dateInput.value.slice(-1);
+					dateInput.value = dateInput.value.slice(0, 8) + d;
+					event.preventDefault();
+					dateInput.setSelectionRange(10, 10);
+				}
+			}
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{% extends 'navbar.html' %}
+
+{% block body %}
+<div style='display: flex; align-items: center;'>
+    <h1>Area {{ collection.nexusArea }} – {{ collection.date }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</h1>
+</div>
+
+<span class='extra-text'>
+    <h3>Buscar coleção</h3>
+    <label for='areaInput'>Área Nexus:</label>
+    {% include 'areaField.html' %}
+
+    <label for='dateInput'>Data:</label>
+    {% include 'dateField.html' %}
+
+    <button id='searchButton'>Buscar</button>
+</span>
+
+<div class='list'>
+    {% for item in images %}
+    <li>
+        <a href='/images/outlines/{{collection.nexusArea}}_{{collection.date}}/{{ item.image.outline.name }}'>
+        {{ item.image.outline.name }}</a>
+        – Lat.: [{{ item.coordinates.yMin }}&deg;, {{ item.coordinates.yMax }}&deg;];
+        Lon.: [{{ item.coordinates.xMin }}&deg;, {{ item.coordinates.xMax }}&deg;]
+    </li>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{
+  "type": <Adicione Valor>,
+  "project_id": <Adicione Valor>,
+  "private_key_id": <Adicione Valor>,
+  "private_key": <Adicione Valor>,
+  "client_email": <Adicione Valor>,
+  "client_id": <Adicione Valor>,
+  "auth_uri": <Adicione Valor>,
+  "token_uri": <Adicione Valor>,
+  "auth_provider_x509_cert_url": <Adicione Valor>,
+  "client_x509_cert_url": <Adicione Valor>,
+  "universe_domain": <Adicione Valor>
+}

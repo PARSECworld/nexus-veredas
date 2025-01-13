@@ -1,0 +1,15 @@
+{% extends 'navbar.html' %}
+
+{% block body %}
+<div class='collection'>
+    <ul>
+        {% for collection in collections %}
+        <li>
+            <a href="{% url 'collectionDetail' collection.nexusArea collection.date %}">
+                {{ collection.nexusArea }} – {{ collection.date }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<head>
+	<meta charset='UTF-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+	<style>
+		.input-container {
+			position: relative;
+			display: inline-block;
+		}
+		#areaInput {
+			padding-right: 30px; /* Espaço para a seta */
+		}
+		.options {
+			display: none;
+			position: absolute;
+			top: 100%;
+			left: 0;
+			right: 0;
+			border: 1px solid #ccc;
+			background: white;
+			max-height: 150px; /* Altura máxima para 5 opções */
+			overflow-y: auto; /* Permite rolagem */
+			z-index: 1000;
+		}
+		.options div {
+			padding: 10px;
+			cursor: pointer;
+		}
+		.options div:hover {
+			background: #f0f0f0;
+		}
+		.arrow {
+			position: absolute;
+			right: 5px;
+			top: 50%;
+			transform: translateY(-50%);
+			cursor: pointer;
+		}
+		.no-options {
+ 			padding: 10px;
+			color: gray;
+			pointer-events: none; /* Não permite clicar */
+		}
+	</style>
+</head>
+<body>
+	<div class='input-container'>
+		<input type='text' id='areaInput' placeholder='' autocomplete='off'>
+		<span class='arrow' id='areaArrow'>&#9662;</span>
+		<div class='options' id='areaOptions'>
+			<div class='no-options' id='noAreaOptions'>Área inválida</div>
+			{% for area in areas %}
+			<div>{{ area }}</div>
+			{% endfor %}
+		</div>
+	</div>
+
+	<script>
+		const areaInput = document.getElementById('areaInput');
+		const areaArrow = document.getElementById('areaArrow');
+		const areaOptionsList = document.getElementById('areaOptions');
+		const areaOptions = Array.from(areaOptionsList.children)
+			.filter(option => option.id !== 'noAreaOptions');
+		const areas = areaOptions.map(div => div.textContent.trim());
+		const noAreaOptions = document.getElementById('noAreaOptions');
+
+		function sortAreaOptions() { // Filtra opções com base no input
+			const input = areaInput.value.toLowerCase().normalize('NFD')
+				.replace(/[\u0300-\u036f]/g, '');
+
+			areaOptions.forEach(option => {
+				const optionText = option.textContent.toLowerCase().normalize('NFD')
+					.replace(/[\u0300-\u036f]/g, '');
+				if (optionText.includes(input)) option.style.display = 'block';
+				else option.style.display = 'none';
+			});
+		}
+
+		areaArrow.onclick = function() { // Mostrar/ocultar opções ao clicar na seta
+			sortAreaOptions();
+			if (areaOptions.some(option => option.style.display === 'block'))
+				noAreaOptions.style.display = 'none';
+			else noAreaOptions.style.display = 'block';
+			areaOptionsList.style.display = areaOptionsList.style.display === 'block' ? 'none' : 'block';
+		}
+
+		areaInput.addEventListener('input', function() { // Mostrar/ocultar opções ao digitar
+			noAreaOptions.style.display = 'none';
+			sortAreaOptions();
+			areaOptionsList.style.display = areaOptions.some(option => 
+				option.style.display === 'block') && this.value !== '' ? 'block' : 'none';
+		});
+
+		function selectArea(value) { // Selecionar opção
+			areaInput.value = value;
+			areaOptionsList.style.display = 'none'; // Ocultar opções após seleção
+		}
+
+		function handleAreaClick(event) { // Ocultar opções ao clicar fora (window.onclick = ...)
+			if (!event.target.matches('.arrow') && !event.target.matches('#areaInput'))
+				areaOptionsList.style.display = 'none';
+		}
+
+		areaOptions.forEach(option => { // Adicionar evento de clique nas opções
+			option.onclick = function() {
+				selectArea(option.textContent);
+			};
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<head>
+	<meta charset='UTF-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+	<style>
+		:root {
+			--navbarHeight: 8vh;
+		}
+		html, body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			height: 100%;
+			width: 100%;
+		}
+		.navbar {
+			position: sticky;
+			width: 100%;
+			height: var(--navbarHeight);
+			background-color: #ec644b;
+			color: black;
+			padding: 15px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			box-sizing: border-box;
+		}
+		#selection {
+			background-color: white;
+			border: 1px solid #ccc;
+			padding: 5px;
+			margin-right: 2%;
+		}
+		#filler {
+			display: flex;
+			align-items: left;
+		}
+		.content {
+			box-sizing: border-box;
+		}
+	</style>
+</head>
+<body>
+	<div class='navbar'>
+		<h1 id='title'>Veredas</h1>
+
+		<div style='margin:0 auto;' id='filler'>
+		{% block filler %}{% endblock %}</div>
+
+		<select id='selection'>
+			<option value='plataforma'>Plataforma</option>
+			<option value='busca'>Busca de imagens</option>
+		</select>
+	</div>
+
+	<div class='content'>
+		{% block body %}{% endblock %}
+	</div>
+<script>
+	const base = '{{ request.scheme }}://{{ request.get_host }}';
+	const selection = document.getElementById('selection');
+
+	document.addEventListener('DOMContentLoaded', function() {
+		if (window.location.href == base + "{% url 'list_collections' %}") selection.value = 'busca';
+		else if (window.location.href == base + '/') selection.value = 'plataforma';
+	})
+
+	const current = document.getElementById('selection').value;
+	selection.addEventListener('change', function() {
+		selectedOption = this.options[this.selectedIndex].value;
+		this.value = current;
+		if (selectedOption == 'busca') window.location.href = "{% url 'list_collections' %}";
+		else if (selectedOption == 'plataforma') window.location.href = base;
+	})
+</script>
+</body>
+</html>

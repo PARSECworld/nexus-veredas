@@ -1,0 +1,62 @@
+{% extends 'navbar.html' %}
+
+{% block filler %}
+<label for='areaContainer'>Área Nexus:</label>
+<div class='areaContainer'>{% include 'areaField.html' %}</div>
+&nbsp;&nbsp;<label for='dateContainer'>Data:</label>
+<div class='dateContainer'>{% include 'dateField.html' %}</div>
+&nbsp;&nbsp;<button id='updateButton'>Atualizar</button>
+{% endblock %}
+
+{% block body %}
+<style>
+	html, body {
+		font-family: Arial, sans-serif;
+		overflow: hidden;
+		margin: 0;
+		height: 100%;
+		width: 100%;
+	}
+	iframe {
+		height: calc(100vh - var(--navbarHeight));
+	}
+</style>
+<iframe src='{{ app_url }}#nexusArea=;data=' 
+id='map' style='border:0; width:100%;' load='Lazy' allowfullscreen allowscripts></iframe>
+
+<script>
+	document.getElementById('updateButton').addEventListener('click', function() {
+		const area = document.getElementById('areaInput').value;
+		const date = document.getElementById('dateInput').value;
+
+		if (!areas.includes(area) || !area) {
+			areaOptions.forEach(option => {option.style.display = 'none'});
+			noAreaOptions.style.display = 'block';
+			areaOptionsList.style.display = 'block';
+		} else areaOptionsList.style.display = 'none';
+		if (!dates.includes(date) || !date) {
+			dateOptions.forEach(option => {option.style.display = 'none'});
+			noDateOptions.style.display = 'block';
+			dateOptionsList.style.display = 'block';
+		} else dateOptionsList.style.display = 'none';
+		if (areas.includes(area) && dates.includes(date) && area && date) {
+			const nArea = area.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ /g, '-');
+			let url = document.getElementById('map').src.split('#')[0]
+			url += `#nexusArea=${encodeURIComponent(nArea)};data=${encodeURIComponent(date)}`;
+			document.getElementById('map').src = '';
+			setTimeout(function() {document.getElementById('map').src = url}, 50);
+		}
+	})
+
+	window.onclick = function(event) {
+		if (event.target.id === 'updateButton') return;
+		handleAreaClick(event);
+		handleDateClick(event);
+	};
+
+	document.querySelector('.navbar').addEventListener('mouseleave', function(event) {
+		areaOptionsList.style.display = 'none';
+		dateOptionsList.style.display = 'none';
+	});
+</script>
+{% endblock %}
