@@ -173,4 +173,4 @@ S3_DOMAIN = f'{S3_BUCKET}.s3.amazonaws.com'
 
 # Dados da shapefile Nexus
 
-NEXUS_TITULO_COLUNA_NOME = <Adicione Valor>
+NEXUS_TITULO_COLUNA_NOME = 'Nome'
