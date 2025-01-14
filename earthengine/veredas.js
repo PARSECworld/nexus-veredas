@@ -1,4 +1,4 @@
-const GOOGLE_API_PROJECT = <Adicione Valor>
+var GOOGLE_API_PROJECT = <Adicione Valor>
 
 var nexusArea = ui.url.get('nexusArea', null)
 var data = ui.url.get('data', null)
